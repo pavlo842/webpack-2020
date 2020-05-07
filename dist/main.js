@@ -243,6 +243,8 @@ function _start() {
 }
 
 start().then(console.log);
+var unused = 42;
+console.log(unused);
 
 var Util = function Util() {
   _classCallCheck(this, Util);

@@ -57,6 +57,19 @@ const babelOptions = preset => {
     return opts;
 }
 
+const jsLoaders = () => {
+    const loaders = [{
+        loader: 'babel-loader',
+        options: babelOptions(),
+    }];
+
+    if (isDev) {
+        loaders.push('eslint-loader');
+    }
+
+    return loaders;
+}
+
 const isDev = process.env.NODE_ENV === 'development'; // доступ к систееме переменных
 console.log('IS DEV', isDev);
 const isProd = !isDev; // переменная для production
@@ -193,18 +206,20 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: {
-                    loader: 'babel-loader',
-                    options: babelOptions(), // Подключается функция вместо объекта ниже
-                    // {
-                    //     presets: [
-                    //         '@babel/preset-env',
-                    //     ],
-                    //     plugins: [
-                    //         '@babel/plugin-proposal-class-properties',
-                    //     ],
-                    // }
-                },
+                use: jsLoaders(), // Если не нужен то можно закоментировать и раскоментировать ниже
+                // Ниже закоментировано т.к. добавлен jsLoaders для использования ESlint
+                // loader: {
+                //     loader: 'babel-loader',
+                //     options: babelOptions(), // Подключается функция вместо объекта ниже
+                //     // {
+                //     //     presets: [
+                //     //         '@babel/preset-env',
+                //     //     ],
+                //     //     plugins: [
+                //     //         '@babel/plugin-proposal-class-properties',
+                //     //     ],
+                //     // }
+                // },
             },
             // TS
             {

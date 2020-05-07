@@ -4,6 +4,10 @@ async function start() {
 
 start().then(console.log);
 
+const unused = 42;
+
+console.log(unused);
+
 class Util {
     static date = Date.now();
 }
