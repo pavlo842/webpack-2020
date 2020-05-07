@@ -5,6 +5,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin'); // плагин для
 const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // плагин для css
 const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin'); // оптимизация css
 const TerserWebpackPlugin = require('terser-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const optimization = () => {
     const config = { // если jquery 2 и более импорта, то нужна оптимизация
@@ -70,6 +71,37 @@ const jsLoaders = () => {
     return loaders;
 }
 
+const plugins = () => {
+    const base = [ // сдесь указываются плагины
+        new HTMLWebpackPlugin({
+            // title: 'First WEBPACK', // если есть параметр template то title отсюда не работает
+            template: './index.html', // указывается файл который берется за основу - параметр title отсюда не работает
+            minify: {
+                collapseWhitespace: isProd, // минифицируется html если production
+
+            },
+        }),
+        new CleanWebpackPlugin(), // очистка папки dist от старых сборок - остаются только актуальные файлы
+        new CopyWebpackPlugin([
+            {
+                from: path.resolve(__dirname, 'src/favicon.ico'),
+                to: path.resolve(__dirname, 'dist'),
+            },
+        ]),
+        new MiniCssExtractPlugin({
+            // filename: '[name].[hash].css' // файл на выходе- в который будут записаны стили
+            // вместо предыдущего
+        filename: filename('css')
+        }),
+    ]
+
+    if (isProd) {
+        base.push(new BundleAnalyzerPlugin());
+    }
+
+    return base;
+}
+
 const isDev = process.env.NODE_ENV === 'development'; // доступ к систееме переменных
 console.log('IS DEV', isDev);
 const isProd = !isDev; // переменная для production
@@ -113,28 +145,30 @@ module.exports = {
         hot: isDev, // изменение без перезагрузки. hmr работает если isDev true
     },
     devtool: isDev ? 'source-map' : '', // добавление исходных карт в режиме разработки - для отображения исходных кодов в консоли
-    plugins: [ // сдесь указываются плагины
-        new HTMLWebpackPlugin({
-            // title: 'First WEBPACK', // если есть параметр template то title отсюда не работает
-            template: './index.html', // указывается файл который берется за основу - параметр title отсюда не работает
-            minify: {
-                collapseWhitespace: isProd, // минифицируется html если production
+    plugins: plugins(),
+    // Далее закоментировано т.к. используется webpack-bundle-analyzer
+    // [ // сдесь указываются плагины
+    //     new HTMLWebpackPlugin({
+    //         // title: 'First WEBPACK', // если есть параметр template то title отсюда не работает
+    //         template: './index.html', // указывается файл который берется за основу - параметр title отсюда не работает
+    //         minify: {
+    //             collapseWhitespace: isProd, // минифицируется html если production
 
-            },
-        }),
-        new CleanWebpackPlugin(), // очистка папки dist от старых сборок - остаются только актуальные файлы
-        new CopyWebpackPlugin([
-            {
-                from: path.resolve(__dirname, 'src/favicon.ico'),
-                to: path.resolve(__dirname, 'dist'),
-            },
-        ]),
-        new MiniCssExtractPlugin({
-            // filename: '[name].[hash].css' // файл на выходе- в который будут записаны стили
-            // вместо предыдущего
-            filename: filename('css')
-        }),
-    ],
+    //         },
+    //     }),
+    //     new CleanWebpackPlugin(), // очистка папки dist от старых сборок - остаются только актуальные файлы
+    //     new CopyWebpackPlugin([
+    //         {
+    //             from: path.resolve(__dirname, 'src/favicon.ico'),
+    //             to: path.resolve(__dirname, 'dist'),
+    //         },
+    //     ]),
+    //     new MiniCssExtractPlugin({
+    //         // filename: '[name].[hash].css' // файл на выходе- в который будут записаны стили
+    //         // вместо предыдущего
+    //         filename: filename('css')
+    //     }),
+    // ],
     module: {
         rules: [
             // РАБОТА С CSS
